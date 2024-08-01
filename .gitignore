@@ -1,0 +1,5 @@
+# the target folder
+target/
+
+# ds store
+.DS_Store

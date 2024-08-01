@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "rustlox",
+    "run_prompt",
+]
