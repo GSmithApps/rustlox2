@@ -1,3 +1,5 @@
+//! Contains a function to print a string with a surrounding box.
+
 
 /// Print the lines with a surrounding box.
 /// 

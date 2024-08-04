@@ -4,6 +4,10 @@
 //! the `run` function.
 
 
+mod run_prompt;
+mod run_file;
+mod run;
+
 use std::env::args;
 use std::path::PathBuf;
 

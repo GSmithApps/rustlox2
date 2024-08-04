@@ -1,5 +1,6 @@
 # the target folder
 target/
+_target/
 
 # ds store
 .DS_Store

@@ -3,7 +3,6 @@
 
 use std::io::Write;
 
-use run::run;
 
 /// Call the interpreter to run the code inside the prompt.
 /// 
@@ -37,6 +36,6 @@ pub fn run_prompt() {
             break;
         }
 
-        run(&(input.trim()));
+        crate::run::run(&(input.trim()));
     }
 }
