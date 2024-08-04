@@ -1,6 +1,6 @@
 //! 
 
-use std::path::Path;
+// use std::path::Path;
 
 
 // /// Call the interpreter to run the code inside the file.
@@ -8,9 +8,9 @@ use std::path::Path;
 //     let path = get_path(&path);
 // }
 
-fn get_path<P: AsRef<Path>>(path: P) -> &Path {
-    path.as_ref() // Convert to &Path
-}
+// fn get_path<P: AsRef<Path>>(path: P) -> &Path {
+//     path.as_ref() // Convert to &Path
+// }
 
 
 // #[test]

@@ -1,3 +1,5 @@
+//! This is a REPL (Read-Eval-Print-Loop) that will keep
+//! running until the user exits.
 
 use std::io::Write;
 
