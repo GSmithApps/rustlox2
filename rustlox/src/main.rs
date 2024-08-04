@@ -27,7 +27,8 @@ fn main() {
             "but it should be something like:",
             temp_example_2.as_str(),
         ];
-        utilities::print_with_surrounding_box(lines_of_statements_in_response);
+
+        utilities::print_with_surrounding_box::print_with_surrounding_box(lines_of_statements_in_response)
 
     } else if args.len() == 2 {
         let path: PathBuf = PathBuf::from(&args[1]);
