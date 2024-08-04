@@ -20,7 +20,10 @@ use run::run;
 /// At the very beginning, tell the user that they can exit by
 /// typing `exit` or `quit`.
 pub fn run_prompt() {
-    println!("Running. Type 'exit' or 'quit' to exit");
+    let lines_of_statements_in_response = vec![
+        "Running prompt. Type 'exit' or 'quit' to exit",
+    ];
+    utilities::print_with_surrounding_box(lines_of_statements_in_response);
 
     loop {
 

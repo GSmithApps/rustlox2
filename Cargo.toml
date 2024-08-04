@@ -3,4 +3,6 @@
 members = [
     "rustlox",
     "run_prompt",
+    "run_file",
+    "utilities"
 ]

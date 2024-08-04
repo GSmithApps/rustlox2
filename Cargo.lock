@@ -18,6 +18,7 @@ name = "run_prompt"
 version = "0.1.0"
 dependencies = [
  "run",
+ "utilities",
 ]
 
 [[package]]
@@ -26,4 +27,9 @@ version = "0.1.0"
 dependencies = [
  "run_file",
  "run_prompt",
+ "utilities",
 ]
+
+[[package]]
+name = "utilities"
+version = "0.1.0"
