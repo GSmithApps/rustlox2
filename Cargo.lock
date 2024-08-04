@@ -6,8 +6,13 @@ version = 3
 name = "rustlox"
 version = "0.1.0"
 dependencies = [
+ "scanner",
  "utilities",
 ]
+
+[[package]]
+name = "scanner"
+version = "0.1.0"
 
 [[package]]
 name = "utilities"

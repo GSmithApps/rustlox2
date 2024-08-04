@@ -1,4 +1,6 @@
 //! Contains the `run_file` function
+//! 
+//! Depends on the `run` function.
 
 use std::path::Path;
 
