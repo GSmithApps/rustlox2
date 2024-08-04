@@ -1,12 +1,13 @@
 //! 
 
-// use std::path::Path;
+use std::path::Path;
 
 
-// /// Call the interpreter to run the code inside the file.
-// pub fn run_file<P: AsRef<Path>>(path: P) {
-//     let path = get_path(&path);
-// }
+/// Call the interpreter to run the code inside the file.
+pub fn run_file<P: AsRef<Path>>(path: P) {
+    // let path = get_path(&path);
+    println!("Running file: {:?}", path.as_ref());
+}
 
 // fn get_path<P: AsRef<Path>>(path: P) -> &Path {
 //     path.as_ref() // Convert to &Path
