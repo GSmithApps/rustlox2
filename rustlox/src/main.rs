@@ -9,7 +9,6 @@ mod run_file;
 mod run;
 
 use std::env::args;
-use std::path::PathBuf;
 
 
 /// Get the command line args.
@@ -35,8 +34,7 @@ fn main() {
         utilities::print_with_surrounding_box::print_with_surrounding_box(lines_of_statements_in_response)
 
     } else if args.len() == 2 {
-        let path: PathBuf = PathBuf::from(&args[1]);
-        run_file::run_file(&path);
+        run_file::run_file(&args[1]);
     } else {
         run_prompt::run_prompt();
     }

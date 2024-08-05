@@ -1,35 +1,72 @@
 //! Contains the `run_file` function
 //! 
-//! Depends on the `run` function.
+//! Requires on the `run` function.
 
-use std::path::Path;
+use std::path::PathBuf;
+use std::io::Write;
 
 
-/// Call the interpreter to run the code inside the file.
-pub fn run_file<P: AsRef<Path>>(path: P) {
-    // let path = get_path(&path);
-    println!("Running file: {:?}", path.as_ref());
+/// Run the code from a file.
+/// 
+/// Get the file and pass the code to the `run` function.
+/// 
+/// This happens if the user passes an argument into the
+/// command line. I say "an" argument because if it's zero,
+/// it falls elsewhere (into the `run_prompt` function), and
+/// if it's more than one, it falls elsewhere (into a message
+/// that tells the user they can only pass one argument).
+/// 
+/// If the user's argument does not give a valid string from
+/// the file, we'll go into a loop asking the user to try
+/// again.  If they type in `exit` or `quit`, then we'll
+/// break the loop.
+pub fn run_file(path_string: &str) {
+
+    let mut i = 1;
+
+    let mut string_from_file: Result<String, std::io::Error>;
+
+    loop {
+        if i == 1 {
+
+            let path: PathBuf = PathBuf::from(path_string);
+            string_from_file = std::fs::read_to_string(path);
+
+        } else {
+
+            let lines_of_statements_in_response = vec![
+                "There was an error reading the file.",
+                "Please try again.",
+                "Type 'exit' or 'quit' to exit.",
+                // &format!("{:?}", e),
+            ];
+            utilities::print_with_surrounding_box::print_with_surrounding_box(lines_of_statements_in_response);
+        
+            print!("> ");
+            std::io::stdout().flush().unwrap();
+        
+            let mut input = String::new();
+            std::io::stdin().read_line(&mut input).unwrap();
+        
+            if input.trim() == "exit" || input.trim() == "quit" {
+                break;
+            }
+            string_from_file = std::fs::read_to_string(input.trim());
+
+        }
+
+        i = i + 1;
+
+        match string_from_file {
+            Ok(string_from_file) => {
+                crate::run::run(&string_from_file);
+                break;
+            },
+            Err(e) => {
+                continue;
+            }
+        }
+    }
+
 }
-
-// fn get_path<P: AsRef<Path>>(path: P) -> &Path {
-//     path.as_ref() // Convert to &Path
-// }
-
-
-// #[test]
-// fn test_get_path() {
-//     let path_buf = PathBuf::from("/some/path");
-//     let path_str = "/some/other/path";
-
-//     // You can call the same function with different types of arguments
-//     get_path(path_buf);  // PathBuf
-//     get_path(path_str);  // &str
-//     get_path("literal/path"); // &str (string literal)
-// }
-
-
-
-
-
-
 
