@@ -24,9 +24,7 @@ pub fn print_with_surrounding_box(lines_of_statements_in_response: Vec<&str>) ->
 
     let lines_with_surrounding_box = get_surrounding_box(lines_of_statements_in_response);
 
-    for line in lines_with_surrounding_box {
-        println!("{}", line);
-    }
+    for line in lines_with_surrounding_box {println!("{}", line);}
 
 }
 
@@ -55,20 +53,30 @@ fn get_surrounding_box(lines_of_statements_in_response: Vec<&str>) -> Vec<String
     let mut lines_with_surrounding_box = Vec::<String>::new();
 
     // map or iterate through the vector of lines and return the greatest length
-    let max_len = lines_of_statements_in_response.iter().map(|line| line.len()).max().unwrap();
+    let max_of_lengths = lines_of_statements_in_response.iter().map(|line| line.len()).max();
+
+    // handle the option such that if there is no max length, we can set it to 0,
+    // otherwise, we can use the value
+    let max_len = match max_of_lengths {
+        Some(val) => val,
+        None => 0,
+    };
 
     // make a vector of filler spaces to add to the end of each line
-    let filler_spaces_for_statements = lines_of_statements_in_response.iter().map(|line| std::iter::repeat(' ').take(max_len - line.len()).collect::<String>()).collect::<Vec<String>>();
+    let filler_spaces_for_statements = lines_of_statements_in_response.iter().map(
+        |line| std::iter::repeat(' ')
+        .take(max_len - line.len()).collect::<String>()
+    ).collect::<Vec<String>>();
 
-    let at_signs = std::iter::repeat('─').take(max_len).collect::<String>();
+    let horizontal_lines = std::iter::repeat('─').take(max_len).collect::<String>();
 
     // push the first item onto the vector
-    lines_with_surrounding_box.push(format!("┌─{}─┐", at_signs));
+    lines_with_surrounding_box.push(format!("┌─{}─┐", horizontal_lines));
 
     for (line, filler) in lines_of_statements_in_response.iter().zip(filler_spaces_for_statements.iter()) {
         lines_with_surrounding_box.push(format!("│ {}{} │",line, filler));
     }
-    lines_with_surrounding_box.push(format!("└─{}─┘", at_signs));
+    lines_with_surrounding_box.push(format!("└─{}─┘", horizontal_lines));
 
     lines_with_surrounding_box
 }

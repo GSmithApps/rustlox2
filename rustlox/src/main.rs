@@ -23,13 +23,13 @@ fn main() {
     let args: Vec<String> = args().collect();
 
     if args.len() > 2 {
-        let temp_example = &format!("[{}]", args[1..].join(", ").as_str());
-        let temp_example_2 = &format!("[{}]", args[1].as_str());
+        let args_string = format!("[{}]", args[1..].join(", "));
+        let first_arg = format!("[{}]", args[1]);
         let lines_of_statements_in_response = vec![
             "We received too many parameters (the limit is 1).  We received:",
-            temp_example.as_str(),
+            &args_string,
             "but it should be something like:",
-            temp_example_2.as_str(),
+            &first_arg,
         ];
 
         utilities::print_with_surrounding_box::print_with_surrounding_box(lines_of_statements_in_response)
