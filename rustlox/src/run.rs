@@ -8,6 +8,6 @@
 /// 
 /// This will be used by `run_file` and `run_prompt`.
 pub fn run(code: &str) {
-    println!("Running code: {}", code);
+    println!("Running code:\n{}", code);
 }
 
