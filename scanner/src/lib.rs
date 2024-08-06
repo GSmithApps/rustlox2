@@ -1,3 +1,4 @@
 
-mod token_type;
-mod token;
+
+mod scanner;
+mod scanner_struct;

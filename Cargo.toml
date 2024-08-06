@@ -4,4 +4,5 @@ members = [
     "rustlox",
     "utilities",
     "scanner",
+    "token",
 ]

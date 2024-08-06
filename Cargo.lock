@@ -13,6 +13,13 @@ dependencies = [
 [[package]]
 name = "scanner"
 version = "0.1.0"
+dependencies = [
+ "token",
+]
+
+[[package]]
+name = "token"
+version = "0.1.0"
 
 [[package]]
 name = "utilities"

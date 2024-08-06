@@ -2,7 +2,7 @@
 //! 
 //! Requires on the `run` function.
 
-use std::path::{self, PathBuf};
+use std::path::PathBuf;
 use std::io::Write;
 
 
@@ -35,8 +35,6 @@ pub fn run_file(first_path_string: &str) {
 
             let path: PathBuf = PathBuf::from(&path_string);
             string_from_file = std::fs::read_to_string(path);
-
-            is_first_time = false;
 
         } else {
 
@@ -76,6 +74,8 @@ pub fn run_file(first_path_string: &str) {
                 utilities::print_with_surrounding_box::print_with_surrounding_box(lines_of_statements_in_response);
             }
         }
+
+        is_first_time = false;
 
     }
     
