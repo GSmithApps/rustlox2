@@ -57,10 +57,7 @@ fn get_surrounding_box(lines_of_statements_in_response: Vec<&str>) -> Vec<String
 
     // handle the option such that if there is no max length, we can set it to 0,
     // otherwise, we can use the value
-    let max_len = match max_of_lengths {
-        Some(val) => val,
-        None => 0,
-    };
+    let max_len = max_of_lengths.unwrap_or(0);
 
     // make a vector of filler spaces to add to the end of each line
     let filler_spaces_for_statements = lines_of_statements_in_response.iter().map(
