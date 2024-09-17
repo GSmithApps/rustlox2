@@ -61,11 +61,10 @@ fn get_surrounding_box(lines_of_statements_in_response: Vec<&str>) -> Vec<String
 
     // make a vector of filler spaces to add to the end of each line
     let filler_spaces_for_statements = lines_of_statements_in_response.iter().map(
-        |line| std::iter::repeat(' ')
-        .take(max_len - line.len()).collect::<String>()
+        |line| " ".repeat(max_len - line.len())
     ).collect::<Vec<String>>();
 
-    let horizontal_lines = std::iter::repeat('─').take(max_len).collect::<String>();
+    let horizontal_lines = "─".repeat(max_len);
 
     // push the first item onto the vector
     lines_with_surrounding_box.push(format!("┌─{}─┐", horizontal_lines));
