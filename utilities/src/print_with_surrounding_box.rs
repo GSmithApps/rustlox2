@@ -20,7 +20,7 @@
 /// └────────────────────────┘
 /// ```
 ///
-pub fn print_with_surrounding_box(lines_of_statements_in_response: Vec<&str>) -> () {
+pub fn print_with_surrounding_box(lines_of_statements_in_response: Vec<&str>) {
 
     let lines_with_surrounding_box = get_surrounding_box(lines_of_statements_in_response);
 
