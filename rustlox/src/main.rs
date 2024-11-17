@@ -22,16 +22,13 @@ fn main() {
     let args: Vec<String> = args().collect();
 
     if args.len() > 2 {
-        let args_string = format!("[{}]", args[1..].join(", "));
-        let first_arg = format!("[{}]", args[1]);
-        let lines_of_statements_in_response = vec![
-            "We received too many parameters (the limit is 1).  We received:",
-            &args_string,
-            "but it should be something like:",
-            &first_arg,
-        ];
 
-        utilities::print_with_surrounding_box::print_with_surrounding_box(lines_of_statements_in_response)
+        utilities::print_with_surrounding_box::print_with_surrounding_box(vec![
+            "We received too many parameters (the limit is 1).  We received:",
+            &format!("[{}]", args[1..].join(", ")),
+            "but it should be something like:",
+            &format!("[{}]", args[1]),
+        ]);
 
     } else if args.len() == 2 {
         run_file::run_file(&args[1]);

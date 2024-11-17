@@ -2,6 +2,8 @@
 
 /// Print the lines with a surrounding box.
 /// 
+/// This is usually used for human-readable messages in the console.
+/// 
 /// # Example
 /// 
 /// ```
