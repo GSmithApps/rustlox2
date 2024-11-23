@@ -1,7 +1,7 @@
 
 
 /// An enum for token types
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenType {
     // single-character tokens
     LeftParen,

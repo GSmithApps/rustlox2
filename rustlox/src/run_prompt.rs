@@ -21,10 +21,9 @@ use std::io::Write;
 /// At the very beginning, tell the user that they can exit by
 /// typing `exit` or `quit`.
 pub fn run_prompt() {
-    let lines_of_statements_in_response = vec![
-        "Running prompt. Type 'exit' or 'quit' to exit",
-    ];
-    utilities::print_with_surrounding_box::print_with_surrounding_box(lines_of_statements_in_response);
+    utilities::print_with_surrounding_box::print_with_surrounding_box(vec![
+        String::from("Running prompt. Type 'exit' or 'quit' to exit"),
+    ]);
 
     loop {
 

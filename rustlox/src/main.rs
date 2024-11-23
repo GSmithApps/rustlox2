@@ -22,12 +22,11 @@ fn main() {
     let args: Vec<String> = args().collect();
 
     if args.len() > 2 {
-
         utilities::print_with_surrounding_box::print_with_surrounding_box(vec![
-            "We received too many parameters (the limit is 1).  We received:",
-            &format!("[{}]", args[1..].join(", ")),
-            "but it should be something like:",
-            &format!("[{}]", args[1]),
+            String::from("We received too many parameters (the limit is 1).  We received:"),
+            format!("[{}]", args[1..].join(", ")),
+            String::from("but it should be something like:"),
+            format!("[{}]", args[1]),
         ]);
 
     } else if args.len() == 2 {

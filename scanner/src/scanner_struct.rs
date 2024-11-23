@@ -1,7 +1,9 @@
+//! Contains the `Scanner` struct.
 
 use token::token::Token;
 
 /// The scanner struct.
+#[derive(Debug, Clone, PartialEq)] 
 pub struct Scanner {
     /// The raw source code.
     pub source: String,

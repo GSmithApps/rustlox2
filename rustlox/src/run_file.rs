@@ -55,23 +55,20 @@ pub fn run_file(first_path_string: &str) {
         match string_from_file {
             Ok(string_from_file) => {
                 crate::run::run(&string_from_file);
-                let lines_of_statements_in_response = vec![
-                    "That seemed to work!",
-                    "If you want to run more, pass another file path.",
-                    "Type 'exit' or 'quit' to exit.",
-                ];
-                utilities::print_with_surrounding_box::print_with_surrounding_box(lines_of_statements_in_response);
+                utilities::print_with_surrounding_box::print_with_surrounding_box(vec![
+                    String::from("That seemed to work!"),
+                    String::from("If you want to run more, pass another file path."),
+                    String::from("Type 'exit' or 'quit' to exit."),
+                ]);
             },
             Err(e) => {
-                let error_statement = format!("{:?}", e);
-                let lines_of_statements_in_response = vec![
-                    "There was an error reading the file:",
-                    &path_string.trim(),
-                    "Please try again.",
-                    "Type 'exit' or 'quit' to exit.",
-                    &error_statement,
-                ];
-                utilities::print_with_surrounding_box::print_with_surrounding_box(lines_of_statements_in_response);
+                utilities::print_with_surrounding_box::print_with_surrounding_box(vec![
+                    String::from("There was an error reading the file:"),
+                    path_string.trim().to_string(),
+                    String::from("Please try again."),
+                    String::from("Type 'exit' or 'quit' to exit."),
+                    format!("{:?}", e),
+                ]);
             }
         }
 

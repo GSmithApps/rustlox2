@@ -22,7 +22,7 @@
 /// └────────────────────────┘
 /// ```
 ///
-pub fn print_with_surrounding_box(lines_of_statements_in_response: Vec<&str>) {
+pub fn print_with_surrounding_box(lines_of_statements_in_response: Vec<String>) {
 
     let mut lines_of_statements_in_response = lines_of_statements_in_response.iter().map(|line| line.to_string()).collect::<Vec<String>>();
 
