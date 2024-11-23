@@ -24,9 +24,11 @@
 ///
 pub fn print_with_surrounding_box(lines_of_statements_in_response: Vec<&str>) {
 
-    let lines_with_surrounding_box = get_surrounding_box(lines_of_statements_in_response);
+    let mut lines_of_statements_in_response = lines_of_statements_in_response.iter().map(|line| line.to_string()).collect::<Vec<String>>();
 
-    for line in lines_with_surrounding_box {println!("{}", line);}
+    get_surrounding_box(&mut lines_of_statements_in_response);
+
+    for line in lines_of_statements_in_response {println!("{}", line);}
 
 }
 
@@ -34,31 +36,37 @@ pub fn print_with_surrounding_box(lines_of_statements_in_response: Vec<&str>) {
 
 /// Get the lines with a surrounding box.
 /// 
+/// Note that the first line and the last line need to be empty
+/// 
 /// # Example
 /// 
 /// ```
 /// get_surrounding_box(vec![
-///     "This is the first line",
-///     "And the second",
+///     String::from("This is the first line"),
+///     String::from("And the second"),
 /// ]);
 /// vec![
-///     "┌────────────────────────┐",
-///     "│ This is the first line │",
-///     "│ And the second         │",
-///     "└────────────────────────┘",
+///     String::from("┌────────────────────────┐"),
+///     String::from("│ This is the first line │"),
+///     String::from("│ And the second         │"),
+///     String::from("└────────────────────────┘"),
 /// ]);
 /// ```
 ///
-fn get_surrounding_box(lines_of_text: Vec<&str>) -> Vec<String> {
-    
+fn get_surrounding_box(lines_of_text: &mut Vec<String>)
+{
     let max_len = lines_of_text.iter().map(|line| line.len()).max().unwrap_or(0);
     
     let horizontal_lines = "─".repeat(max_len);
 
-    std::iter::once(
-        format!("┌─{}─┐", horizontal_lines).into()).chain(
-        lines_of_text.iter().map(|line| format!("│ {}{} │", line, " ".repeat(max_len - line.len())))).chain(
-        std::iter::once(format!("└─{}─┘", horizontal_lines).into())).collect()
+    for line_to_print in lines_of_text.iter_mut() {
+        *line_to_print = format!("│ {}{} │", &line_to_print, " ".repeat(max_len - line_to_print.len()))
+    }
+
+    lines_of_text.insert(0,format!("┌─{}─┐", horizontal_lines));
+
+    lines_of_text.push(format!("└─{}─┘", horizontal_lines));
+
 }
 
 #[cfg(test)]
@@ -69,17 +77,19 @@ mod tests {
     fn test_your_function() {
         // use crate::utilities; // Adjust this based on your crate name
 
-        let lines_of_statements_in_response = vec![
-            "This is the first line",
-            "And the second",
+        let mut lines_of_statements_in_response = vec![
+            String::from("This is the first line"),
+            String::from("And the second"),
         ];
-        let result = get_surrounding_box(lines_of_statements_in_response);
+        get_surrounding_box(&mut lines_of_statements_in_response);
 
-        assert_eq!(result, vec![
-            "┌────────────────────────┐",
-            "│ This is the first line │",
-            "│ And the second         │",
-            "└────────────────────────┘",
-        ]);
+        let intended_result = vec![
+            String::from("┌────────────────────────┐"),
+            String::from("│ This is the first line │"),
+            String::from("│ And the second         │"),
+            String::from("└────────────────────────┘"),
+        ];
+
+        assert_eq!(lines_of_statements_in_response, intended_result);
     }
 }
