@@ -1,6 +1,5 @@
 
 use crate::helpers::add_token;
-use crate::helpers::{beyond_last_char, before_or_on_last_char};
 use crate::helpers::match_char;
 use token::token_type::TokenType;
 
@@ -25,32 +24,56 @@ pub fn scan_token(scanner: &mut crate::scanner_struct::Scanner) {
         // at least one character, so we can increment the current
         scanner.current += 1;
 
-        if before_or_on_last_char(scanner) &&
-           scanner.source.chars().nth(scanner.current).unwrap() == '/'
-        {
-            //increment to consume the second slash
-            scanner.current += 1;
+        let current_char = scanner.source.chars().nth(scanner.current);
 
-            // A comment goes until the end of the line.
-            // continue moving forward until we end the file
-            // or hit a new line. But stop before the new line,
-            // meaning the current character after this will be
-            // a new line, or the file will be over and there
-            // will be no more characters, and the `current` will
-            // be over the limit.
-            // if the new line is the condition that stops it (and
-            // we stop before the new line, that's good and intended
-            // because something else will process the new line.
-            // Also, notice that we don't add a token for the comment --
-            // we just move forward until the end of the line.
-            while before_or_on_last_char(&*scanner) && scanner.source.chars().nth(scanner.current).unwrap() != '\n' {
-                scanner.current += 1;
+        match current_char {
+            // if the next character is none, then we're at the end of the file,
+            // and we can add a token for the slash and return.
+            // in reality, this probably won't happen because there's no
+            // reason to end a file in a division sign.
+            None => {
+                add_token(scanner, TokenType::Slash);
+                return;
+            },
+            Some(current_char) => {
+                // if the next character is a slash, then we have a comment
+                // and we need to consume the rest of the line
+                if current_char == '/' {
+                    //increment to consume the second slash
+                    scanner.current += 1;
+
+                    // A comment goes until the end of the line.
+                    // continue moving forward until we end the file
+                    // or hit a new line. But stop before the new line,
+                    // meaning the current character after this will be
+                    // a new line, or the file will be over and there
+                    // will be no more characters, and the `current` will
+                    // be over the limit.
+                    // if the new line is the condition that stops it (and
+                    // we stop before the new line, that's good and intended
+                    // because something else will process the new line.
+                    // Also, notice that we don't add a token for the comment --
+                    // we just move forward until the end of the line.
+                    loop {
+                        let current_char = scanner.source.chars().nth(scanner.current);
+                        match current_char {
+                            None => {
+                                return;
+                            },
+                            Some(current_char) => {
+                                if current_char == '\n' {
+                                    return;
+                                }
+                            }
+                        }
+                        scanner.current += 1;
+                    }
+                } else {
+                    add_token(scanner, TokenType::Slash);
+                    // don't increment current because we already did that (consumed the single slash)
+                    return;
+                }
             }
-            return;
-        } else {
-            add_token(scanner, TokenType::Slash);
-            // don't increment current because we already did that (consumed the single slash)
-            return;
         }
     }
 
