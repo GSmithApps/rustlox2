@@ -1,13 +1,13 @@
 use token::token::Token;
 use token::token_type::TokenType;
-use crate::helpers::is_at_end;
+use crate::helpers::before_or_on_last_char;
 use crate::scan_token::scan_token;
 
 /// The scan_tokens method that scans the tokens.
 /// 
 /// This is the main method and purpose of the scanner.
 pub fn scan_tokens(scanner: &mut crate::scanner_struct::Scanner) {
-    while !is_at_end(&*scanner) {
+    while before_or_on_last_char(&*scanner) {
         // We are at the beginning of the next lexeme.
         scanner.start = scanner.current;
         scan_token(scanner);
