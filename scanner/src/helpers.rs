@@ -33,26 +33,16 @@ pub fn add_token(
     add_token_literal_with_literal(scanner, token_type, token::token::Literal::NoLexeme);
 }
 
-
 pub fn match_next(scanner: &mut crate::scanner_struct::Scanner, expected: char) -> Result<(),()> {
     //! Checks if the next character matches the expected character.
-    //! - If it does, advances the scanner and returns `Ok(())`.
+    //! - If it does, it returns `Ok(())`.
     //! - If it does not, returns `Err(())`.
-
-    match scanner.current_char {
-        Some(c) => {
-            if c == expected {
-                scanner.advance();
-                return Ok(());
-            }
-            else {
-                return Err(());
-            }
+    match scanner.source.chars().nth(scanner.current + 1) {
+        Some(c) if c == expected => {
+            Ok(())
         },
-        None => {
-            return Err(());
+        _ => {
+            Err(())
         }
-    
     }
-
 }

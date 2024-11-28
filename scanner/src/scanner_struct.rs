@@ -58,7 +58,7 @@ impl Scanner<'_>  {
             // We are at the beginning of the next lexeme.
             self.start = self.current;
             match self.scan_token() {
-                Ok(result) => {
+                Some(result) => {
                     match result {
                         Some(token_type) => {
                             add_token(self, token_type);
@@ -68,11 +68,10 @@ impl Scanner<'_>  {
                         }
                     }
                 },
-                Err(()) => {
+                None => {
                     break;
                 }
             }
-            self.advance();
         }
 
         // We are at the end of the file.
@@ -84,7 +83,7 @@ impl Scanner<'_>  {
         ));
     }
 
-    fn scan_token(&mut self) -> Result<Option<TokenType>, ()> {
+    fn scan_token(&mut self) -> Option<Option<TokenType>> {
         //! The scan_token method that scans a token.
         //! 
         //! This is the main method and purpose of the scanner.
@@ -92,15 +91,26 @@ impl Scanner<'_>  {
         //! This method is called by `scan_tokens` and is responsible for
         //! scanning a single token.
         //! 
-        //! The side effects of this are usually to add a token to the tokens
-        //! and to advance the scanner.
+        //! ## Returns
+        //! 
+        //! The method returns an `Option<Option<TokenType>>`:
+        //! - the outer option is `Some` if the scanner is not at the end of the file,
+        //!   and `None` if the scanner is at the end of the file.
+        //! - the inner option is `Some` if a token was found, and `None` if no token was found.
+        //!   For example, if it processes a comment, that wouldn't add a token, so the 
+        //!   inner option would be `None`. And if it wasn't the end of the file,
+        //!   the outer option would be `Some`, so it would overall return `Some(None)`.
+        //! 
+        //! ---
+        //! 
+        //! This method sometimes advances a token 
 
         // We are at the beginning of the next lexeme.
 
         match self.current_char {
             None => {
                 // We are at the end of the file.
-                Err(())
+                None
             },
             Some(c) => {
 
@@ -109,9 +119,7 @@ impl Scanner<'_>  {
                     // handle comments and division
                     '/' => {
 
-                        // if the lead is a slash, then we're certainly consuming
-                        // at least one character, so we can increment the current
-                        self.advance();
+                        self.advance(1);
 
                         match self.current_char {
                             // if the next character is none, then we're at the end of the file,
@@ -119,47 +127,38 @@ impl Scanner<'_>  {
                             // in reality, this probably won't happen because there's no
                             // reason to end a file in a division sign.
                             None => {
-                                Ok(Some(TokenType::Slash))
+                                Some(Some(TokenType::Slash))
                             },
-                            Some(current_char) => {
-                                // if the next character is a slash, then we have a comment
-                                // and we need to consume the rest of the line
-                                match current_char {
-                                    '/' => {
-                                        //increment to consume the second slash
-                                        self.advance();
-
-                                        // A comment goes until the end of the line.
-                                        // continue moving forward until we end the file
-                                        // or hit a new line. But stop before the new line,
-                                        // meaning the current character after this will be
-                                        // a new line, or the file will be over and there
-                                        // will be no more characters, and the `current` will
-                                        // be over the limit.
-                                        // if the new line is the condition that stops it (and
-                                        // we stop before the new line, that's good and intended
-                                        // because something else will process the new line.
-                                        // Also, notice that we don't add a token for the comment --
-                                        // we just move forward until the end of the line.
-                                        loop {
-                                            
-                                            match self.current_char {
-                                                None => {
-                                                    return Err(());
-                                                },
-                                                Some(current_char) => {
-                                                    if current_char == '\n' {
-                                                        return Ok(None);
-                                                    }
-                                                }
+                            Some('/') => {
+                                // A comment goes until the end of the line.
+                                // continue moving forward until we end the file
+                                // or hit a new line. But stop before the new line,
+                                // meaning the current character after this will be
+                                // a new line, or the file will be over and there
+                                // will be no more characters, and the `current` will
+                                // be over the limit.
+                                // if the new line is the condition that stops it (and
+                                // we stop before the new line, that's good and intended
+                                // because something else will process the new line.
+                                // Also, notice that we don't add a token for the comment --
+                                // we just move forward until the end of the line.
+                                loop {
+                                    
+                                    self.advance(1);
+                                    match self.current_char {
+                                        None => {
+                                            return None
+                                        },
+                                        Some(current_char) => {
+                                            if current_char == '\n' {
+                                                return Some(None);
                                             }
-                                            self.advance();
                                         }
                                     }
-                                    _ => {
-                                        Ok(Some(TokenType::Slash))
-                                    }
                                 }
+                            }
+                            Some(_) => {
+                                Some(Some(TokenType::Slash))
                             }
                         }
                     }
@@ -170,16 +169,16 @@ impl Scanner<'_>  {
 
                     // if c is a letter then we have a keyword or identifier
 
-                    '(' => Ok(Some(TokenType::LeftParen)),
-                    ')' => Ok(Some(TokenType::RightParen)),
-                    '{' => Ok(Some(TokenType::LeftBrace)),
-                    '}' => Ok(Some(TokenType::RightBrace)),
-                    ',' => Ok(Some(TokenType::Comma)),
-                    '.' => Ok(Some(TokenType::Dot)),
-                    '-' => Ok(Some(TokenType::Minus)),
-                    '+' => Ok(Some(TokenType::Plus)),
-                    ';' => Ok(Some(TokenType::Semicolon)),
-                    '*' => Ok(Some(TokenType::Star)),
+                    '(' => {self.advance(1); Some(Some(TokenType::LeftParen))},
+                    ')' => {self.advance(1); Some(Some(TokenType::RightParen))},
+                    '{' => {self.advance(1); Some(Some(TokenType::LeftBrace))},
+                    '}' => {self.advance(1); Some(Some(TokenType::RightBrace))},
+                    ',' => {self.advance(1); Some(Some(TokenType::Comma))},
+                    '.' => {self.advance(1); Some(Some(TokenType::Dot))},
+                    '-' => {self.advance(1); Some(Some(TokenType::Minus))},
+                    '+' => {self.advance(1); Some(Some(TokenType::Plus))},
+                    ';' => {self.advance(1); Some(Some(TokenType::Semicolon))},
+                    '*' => {self.advance(1); Some(Some(TokenType::Star))},
 
                     // these are two part tokens. The pattern is to do match_next
                     // then advance if it matches. This is because we want to consume
@@ -187,57 +186,66 @@ impl Scanner<'_>  {
                     '!' => {
                         let token_type = match match_next(self, '=') {
                             Ok(()) => {
+                                self.advance(2);
                                 TokenType::BangEqual
                             },
                             Err(()) => {
+                                self.advance(1);
                                 TokenType::Bang
                             }
                         };
-                        Ok(Some(token_type))
+                        Some(Some(token_type))
                     },
                     '=' => {
 
                         let token_type = match match_next(self, '=') {
                             Ok(()) => {
+                                self.advance(2);
                                 TokenType::EqualEqual
                             },
                             Err(()) => {
+                                self.advance(1);
                                 TokenType::Equal
                             }
                         };
-                        Ok(Some(token_type))
+                        Some(Some(token_type))
                     },
                     '<' => {
 
                         let token_type = match match_next(self, '=') {
                             Ok(()) => {
+                                self.advance(2);
                                 TokenType::LessEqual
                             },
                             Err(()) => {
+                                self.advance(1);
                                 TokenType::Less
                             }
                         };
 
-                        Ok(Some(token_type))
+                        Some(Some(token_type))
                     },
                     '>' => {
 
                         let token_type = match match_next(self, '=') {
                             Ok(()) => {
+                                self.advance(2);
                                 TokenType::GreaterEqual
                             },
                             Err(()) => {
+                                self.advance(1);
                                 TokenType::Greater
                             }
                         };
 
-                        Ok(Some(token_type))
+                        Some(Some(token_type))
                     },
                     _ => {
                         // crate::run_time_error::run_time_error(self.line, "Unexpected character.".to_string());
 
                         // I don't really have this implemented yet
-                        Err(())
+                        self.advance(1);
+                        None
                     }
                 }
 
@@ -245,9 +253,9 @@ impl Scanner<'_>  {
         }
     }
 
-    pub fn advance(&mut self) {
+    pub fn advance(&mut self, increment_by: usize) {
         //! some stuff
-        self.current += 1;
+        self.current += increment_by;
         self.current_char = self.source.chars().nth(self.current);
     }
 
