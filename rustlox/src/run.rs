@@ -11,5 +11,6 @@ pub fn run(code: &str) {
     let mut myscanner = Scanner::new(code);
     myscanner.scan_tokens();
     println!("Running code:\n{}", code);
+    println!("Tokens: {:?}", myscanner.tokens);
 }
 

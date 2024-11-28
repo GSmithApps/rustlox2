@@ -9,7 +9,7 @@ mod run_file;
 mod run;
 
 use std::env::args;
-
+use std::cmp::Ordering;
 
 /// Get the command line args.
 /// - If there is more than one (in addition to
@@ -21,18 +21,23 @@ use std::env::args;
 fn main() {
     let args: Vec<String> = args().collect();
 
-    if args.len() > 2 {
-        utilities::print_with_surrounding_box::print_with_surrounding_box(vec![
-            String::from("We received too many parameters (the limit is 1).  We received:"),
-            format!("[{}]", args[1..].join(", ")),
-            String::from("but it should be something like:"),
-            format!("[{}]", args[1]),
-        ]);
+    match args.len().cmp(&2) {
+        Ordering::Greater => {
+            utilities::print_with_surrounding_box::print_with_surrounding_box(vec![
+                String::from("We received too many parameters (the limit is 1).  We received:"),
+                format!("[{}]", args[1..].join(", ")),
+                String::from("but it should be something like:"),
+                format!("[{}]", args[1]),
+            ]);
+        },
+        Ordering::Equal => {
+            run_file::run_file(&args[1]);
 
-    } else if args.len() == 2 {
-        run_file::run_file(&args[1]);
-    } else {
-        run_prompt::run_prompt();
+        },
+        Ordering::Less => {
+            run_prompt::run_prompt();
+        },
     }
+
 }
 

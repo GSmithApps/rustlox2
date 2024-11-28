@@ -3,7 +3,7 @@
 use token::token::Token;
 use token::token_type::TokenType;
 use crate::helpers::add_token;
-use crate::helpers::match_char;
+use crate::helpers::match_next;
 
 /// The scanner struct.
 #[derive(Debug, Clone, PartialEq)] 
@@ -170,8 +170,13 @@ impl Scanner<'_>  {
                     '+' => add_token(self, TokenType::Plus),
                     ';' => add_token(self, TokenType::Semicolon),
                     '*' => add_token(self, TokenType::Star),
+
+                    // these are two part tokens. The pattern is to do match_next
+                    // then advance if it matches. This is because we want to consume
+                    // the next character if it matches the second part of the token.
                     '!' => {
-                        let token_type = if match_char(self, '=') {
+                        let token_type = if match_next(self, '=') {
+                            self.advance();
                             TokenType::BangEqual
                         } else {
                             TokenType::Bang
@@ -179,7 +184,8 @@ impl Scanner<'_>  {
                         add_token(self, token_type);
                     },
                     '=' => {
-                        let token_type = if match_char(self, '=') {
+                        let token_type = if match_next(self, '=') {
+                            self.advance();
                             TokenType::EqualEqual
                         } else {
                             TokenType::Equal
@@ -187,7 +193,8 @@ impl Scanner<'_>  {
                         add_token(self, token_type);
                     },
                     '<' => {
-                        let token_type = if match_char(self, '=') {
+                        let token_type = if match_next(self, '=') {
+                            self.advance();
                             TokenType::LessEqual
                         } else {
                             TokenType::Less
@@ -195,7 +202,8 @@ impl Scanner<'_>  {
                         add_token(self, token_type);
                     },
                     '>' => {
-                        let token_type = if match_char(self, '=') {
+                        let token_type = if match_next(self, '=') {
+                            self.advance();
                             TokenType::GreaterEqual
                         } else {
                             TokenType::Greater
