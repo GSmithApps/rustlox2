@@ -5,6 +5,23 @@ use crate::helpers::match_next;
 use token::token::Token;
 use token::token_type::TokenType;
 
+
+enum ScanTokenResult {
+    /// The token was found.
+    /// 
+    /// This is the normal case.
+    TokenFound(TokenType),
+
+    /// No token was found from this pass of ScanToken.
+    /// 
+    /// This is normal and happens when we're scanning a comment
+    NoTokenFromScanPass,
+
+    /// The end of the file was reached.
+    EndOfFile,
+}
+
+
 /// The scanner struct.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Scanner<'a> {
@@ -57,18 +74,14 @@ impl Scanner<'_> {
             // We are at the beginning of the next lexeme.
             self.start = self.current;
             match self.scan_token() {
-                Some(result) => {
-                    match result {
-                        Some(token_type) => {
-                            add_token(self, token_type);
-                        }
-                        None => {
-                            // do nothing
-                        }
-                    }
+                ScanTokenResult::TokenFound(token) => {
+                    add_token(self, token);
                 }
-                None => {
+                ScanTokenResult::EndOfFile => {
                     break;
+                }
+                ScanTokenResult::NoTokenFromScanPass => {
+                    // do nothing
                 }
             }
         }
@@ -82,23 +95,13 @@ impl Scanner<'_> {
         ));
     }
 
-    fn scan_token(&mut self) -> Option<Option<TokenType>> {
+    fn scan_token(&mut self) -> ScanTokenResult {
         //! The scan_token method that scans a token.
         //!
         //! This is the main method and purpose of the scanner.
         //!
         //! This method is called by `scan_tokens` and is responsible for
         //! scanning a single token.
-        //!
-        //! ## Returns
-        //!
-        //! The method returns an `Option<Option<TokenType>>`:
-        //! - the outer option is `Some` if the scanner is not at the end of the file,
-        //!   and `None` if the scanner is at the end of the file.
-        //! - the inner option is `Some` if a token was found, and `None` if no token was found.
-        //!   For example, if it processes a comment, that wouldn't add a token, so the
-        //!   inner option would be `None`. And if it wasn't the end of the file,
-        //!   the outer option would be `Some`, so it would overall return `Some(None)`.
         //!
         //! ## Side Effects
         //!
@@ -108,8 +111,7 @@ impl Scanner<'_> {
 
         match self.current_char {
             None => {
-                // We are at the end of the file.
-                None
+                ScanTokenResult::EndOfFile
             }
             Some(c) => {
                 match c {
@@ -122,7 +124,7 @@ impl Scanner<'_> {
                             // and we can add a token for the slash and return.
                             // in reality, this probably won't happen because there's no
                             // reason to end a file in a division sign.
-                            None => Some(Some(TokenType::Slash)),
+                            None => ScanTokenResult::TokenFound(TokenType::Slash),
                             Some('/') => {
                                 // A comment goes until the end of the line.
                                 // continue moving forward until we end the file
@@ -139,15 +141,15 @@ impl Scanner<'_> {
                                 loop {
                                     self.advance(1);
                                     match self.current_char {
-                                        None => return None,
+                                        None => return ScanTokenResult::EndOfFile,
                                         Some(current_char) if current_char == '\n' => {
-                                            return Some(None);
+                                            return ScanTokenResult::NoTokenFromScanPass;
                                         }
                                         _ => {} // do nothing
                                     }
                                 }
                             }
-                            Some(_) => Some(Some(TokenType::Slash)),
+                            Some(_) => ScanTokenResult::TokenFound(TokenType::Slash),
                         }
                     }
 
@@ -158,43 +160,43 @@ impl Scanner<'_> {
                     // if c is a letter then we have a keyword or identifier
                     '(' => {
                         self.advance(1);
-                        Some(Some(TokenType::LeftParen))
+                        ScanTokenResult::TokenFound(TokenType::LeftParen)
                     }
                     ')' => {
                         self.advance(1);
-                        Some(Some(TokenType::RightParen))
+                        ScanTokenResult::TokenFound(TokenType::RightParen)
                     }
                     '{' => {
                         self.advance(1);
-                        Some(Some(TokenType::LeftBrace))
+                        ScanTokenResult::TokenFound(TokenType::LeftBrace)
                     }
                     '}' => {
                         self.advance(1);
-                        Some(Some(TokenType::RightBrace))
+                        ScanTokenResult::TokenFound(TokenType::RightBrace)
                     }
                     ',' => {
                         self.advance(1);
-                        Some(Some(TokenType::Comma))
+                        ScanTokenResult::TokenFound(TokenType::Comma)
                     }
                     '.' => {
                         self.advance(1);
-                        Some(Some(TokenType::Dot))
+                        ScanTokenResult::TokenFound(TokenType::Dot)
                     }
                     '-' => {
                         self.advance(1);
-                        Some(Some(TokenType::Minus))
+                        ScanTokenResult::TokenFound(TokenType::Minus)
                     }
                     '+' => {
                         self.advance(1);
-                        Some(Some(TokenType::Plus))
+                        ScanTokenResult::TokenFound(TokenType::Plus)
                     }
                     ';' => {
                         self.advance(1);
-                        Some(Some(TokenType::Semicolon))
+                        ScanTokenResult::TokenFound(TokenType::Semicolon)
                     }
                     '*' => {
                         self.advance(1);
-                        Some(Some(TokenType::Star))
+                        ScanTokenResult::TokenFound(TokenType::Star)
                     }
 
                     // these are two part tokens. The pattern is to do match_next
@@ -211,7 +213,7 @@ impl Scanner<'_> {
                                 TokenType::Bang
                             }
                         };
-                        Some(Some(token_type))
+                        ScanTokenResult::TokenFound(token_type)
                     }
                     '=' => {
                         let token_type = match match_next(self, '=') {
@@ -224,7 +226,7 @@ impl Scanner<'_> {
                                 TokenType::Equal
                             }
                         };
-                        Some(Some(token_type))
+                        ScanTokenResult::TokenFound(token_type)
                     }
                     '<' => {
                         let token_type = match match_next(self, '=') {
@@ -238,7 +240,7 @@ impl Scanner<'_> {
                             }
                         };
 
-                        Some(Some(token_type))
+                        ScanTokenResult::TokenFound(token_type)
                     }
                     '>' => {
                         let token_type = match match_next(self, '=') {
@@ -252,14 +254,14 @@ impl Scanner<'_> {
                             }
                         };
 
-                        Some(Some(token_type))
+                        ScanTokenResult::TokenFound(token_type)
                     }
                     _ => {
                         // crate::run_time_error::run_time_error(self.line, "Unexpected character.".to_string());
 
                         // I don't really have this implemented yet
                         self.advance(1);
-                        None
+                        ScanTokenResult::NoTokenFromScanPass
                     }
                 }
             }
