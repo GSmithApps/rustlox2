@@ -54,6 +54,6 @@ pub fn match_char(scanner: &mut crate::scanner_struct::Scanner, expected: char) 
         return false;
     }
 
-    scanner.current += 1;
+    scanner.advance();
     true
 }
