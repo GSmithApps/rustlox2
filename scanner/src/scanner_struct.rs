@@ -101,7 +101,7 @@ impl Scanner<'_> {
         //!   the outer option would be `Some`, so it would overall return `Some(None)`.
         //!
         //! ## Side Effects
-        //! 
+        //!
         //! This method sometimes advances a token
 
         // We are at the beginning of the next lexeme.
@@ -140,11 +140,10 @@ impl Scanner<'_> {
                                     self.advance(1);
                                     match self.current_char {
                                         None => return None,
-                                        Some(current_char) => {
-                                            if current_char == '\n' {
-                                                return Some(None);
-                                            }
+                                        Some(current_char) if current_char == '\n' => {
+                                            return Some(None);
                                         }
+                                        _ => {} // do nothing
                                     }
                                 }
                             }
