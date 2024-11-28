@@ -104,79 +104,82 @@ impl Scanner<'_>  {
             },
             Some(c) => {
 
-                // handle comments and division
-                if c == '/' {
+                match c {
 
-                    // if the lead is a slash, then we're certainly consuming
-                    // at least one character, so we can increment the current
-                    self.advance();
+                    // handle comments and division
+                    '/' => {
 
-                    match self.current_char {
-                        // if the next character is none, then we're at the end of the file,
-                        // and we can add a token for the slash and return.
-                        // in reality, this probably won't happen because there's no
-                        // reason to end a file in a division sign.
-                        None => {
-                            return Ok(Some(TokenType::Slash));
-                        },
-                        Some(current_char) => {
-                            // if the next character is a slash, then we have a comment
-                            // and we need to consume the rest of the line
-                            if current_char == '/' {
-                                //increment to consume the second slash
-                                self.advance();
+                        // if the lead is a slash, then we're certainly consuming
+                        // at least one character, so we can increment the current
+                        self.advance();
 
-                                // A comment goes until the end of the line.
-                                // continue moving forward until we end the file
-                                // or hit a new line. But stop before the new line,
-                                // meaning the current character after this will be
-                                // a new line, or the file will be over and there
-                                // will be no more characters, and the `current` will
-                                // be over the limit.
-                                // if the new line is the condition that stops it (and
-                                // we stop before the new line, that's good and intended
-                                // because something else will process the new line.
-                                // Also, notice that we don't add a token for the comment --
-                                // we just move forward until the end of the line.
-                                loop {
-                                    
-                                    match self.current_char {
-                                        None => {
-                                            return Err(());
-                                        },
-                                        Some(current_char) => {
-                                            if current_char == '\n' {
-                                                return Ok(None);
+                        match self.current_char {
+                            // if the next character is none, then we're at the end of the file,
+                            // and we can add a token for the slash and return.
+                            // in reality, this probably won't happen because there's no
+                            // reason to end a file in a division sign.
+                            None => {
+                                Ok(Some(TokenType::Slash))
+                            },
+                            Some(current_char) => {
+                                // if the next character is a slash, then we have a comment
+                                // and we need to consume the rest of the line
+                                match current_char {
+                                    '/' => {
+                                        //increment to consume the second slash
+                                        self.advance();
+
+                                        // A comment goes until the end of the line.
+                                        // continue moving forward until we end the file
+                                        // or hit a new line. But stop before the new line,
+                                        // meaning the current character after this will be
+                                        // a new line, or the file will be over and there
+                                        // will be no more characters, and the `current` will
+                                        // be over the limit.
+                                        // if the new line is the condition that stops it (and
+                                        // we stop before the new line, that's good and intended
+                                        // because something else will process the new line.
+                                        // Also, notice that we don't add a token for the comment --
+                                        // we just move forward until the end of the line.
+                                        loop {
+                                            
+                                            match self.current_char {
+                                                None => {
+                                                    return Err(());
+                                                },
+                                                Some(current_char) => {
+                                                    if current_char == '\n' {
+                                                        return Ok(None);
+                                                    }
+                                                }
                                             }
+                                            self.advance();
                                         }
                                     }
-                                    self.advance();
+                                    _ => {
+                                        Ok(Some(TokenType::Slash))
+                                    }
                                 }
-                            } else {
-                                return Ok(Some(TokenType::Slash));
                             }
                         }
                     }
-                }
 
-                // if c is a double quote then we have a string
+                    // if c is a double quote then we have a string
 
-                // if c is a digit then we have a number
+                    // if c is a digit then we have a number
 
-                // if c is a letter then we have a keyword or identifier
+                    // if c is a letter then we have a keyword or identifier
 
-
-                match c {
-                    '(' => return Ok(Some(TokenType::LeftParen)),
-                    ')' => return Ok(Some(TokenType::RightParen)),
-                    '{' => return Ok(Some(TokenType::LeftBrace)),
-                    '}' => return Ok(Some(TokenType::RightBrace)),
-                    ',' => return Ok(Some(TokenType::Comma)),
-                    '.' => return Ok(Some(TokenType::Dot)),
-                    '-' => return Ok(Some(TokenType::Minus)),
-                    '+' => return Ok(Some(TokenType::Plus)),
-                    ';' => return Ok(Some(TokenType::Semicolon)),
-                    '*' => return Ok(Some(TokenType::Star)),
+                    '(' => Ok(Some(TokenType::LeftParen)),
+                    ')' => Ok(Some(TokenType::RightParen)),
+                    '{' => Ok(Some(TokenType::LeftBrace)),
+                    '}' => Ok(Some(TokenType::RightBrace)),
+                    ',' => Ok(Some(TokenType::Comma)),
+                    '.' => Ok(Some(TokenType::Dot)),
+                    '-' => Ok(Some(TokenType::Minus)),
+                    '+' => Ok(Some(TokenType::Plus)),
+                    ';' => Ok(Some(TokenType::Semicolon)),
+                    '*' => Ok(Some(TokenType::Star)),
 
                     // these are two part tokens. The pattern is to do match_next
                     // then advance if it matches. This is because we want to consume
@@ -190,7 +193,7 @@ impl Scanner<'_>  {
                                 TokenType::Bang
                             }
                         };
-                        return Ok(Some(token_type));
+                        Ok(Some(token_type))
                     },
                     '=' => {
 
@@ -202,7 +205,7 @@ impl Scanner<'_>  {
                                 TokenType::Equal
                             }
                         };
-                        return Ok(Some(token_type));
+                        Ok(Some(token_type))
                     },
                     '<' => {
 
@@ -215,7 +218,7 @@ impl Scanner<'_>  {
                             }
                         };
 
-                        return Ok(Some(token_type));
+                        Ok(Some(token_type))
                     },
                     '>' => {
 
@@ -228,14 +231,15 @@ impl Scanner<'_>  {
                             }
                         };
 
-                        return Ok(Some(token_type));
+                        Ok(Some(token_type))
                     },
                     _ => {
                         // crate::run_time_error::run_time_error(self.line, "Unexpected character.".to_string());
+
+                        // I don't really have this implemented yet
+                        Err(())
                     }
                 }
-
-                Ok(None)
 
             }
         }
