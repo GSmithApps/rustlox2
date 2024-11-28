@@ -15,24 +15,20 @@ pub struct Token {
     pub lexeme: String,
     pub literal: Literal,
     pub line: usize,
-    pub column: usize,
-    pub length: usize,
 }
 
 impl Token {
-    pub fn new(token_type: crate::token_type::TokenType, lexeme: String, literal: Literal,line: usize, column: usize, length: usize) -> Self {
+    pub fn new(token_type: crate::token_type::TokenType, lexeme: String, literal: Literal,line: usize) -> Self {
         Token {
             token_type,
             lexeme,
             literal,
             line,
-            column,
-            length
         }
     }
 
     pub fn to_string(&self) -> String {
-        format!("{:?} {} {} {}", self.token_type, self.lexeme, self.line, self.column)
+        format!("{:?} {} {}", self.token_type, self.lexeme, self.line)
     }
 }
 

@@ -2,8 +2,6 @@
 
 use token::token::Token;
 use token::token_type::TokenType;
-use crate::helpers::before_or_on_last_char;
-
 use crate::helpers::add_token;
 use crate::helpers::match_char;
 
@@ -56,10 +54,15 @@ impl Scanner<'_>  {
         //! 
         //! This is the main method and purpose of the scanner.
 
-        while before_or_on_last_char(&*self) {
+        loop{
             // We are at the beginning of the next lexeme.
             self.start = self.current;
-            self.scan_token();
+            match self.scan_token() {
+                Ok(()) => {},
+                Err(()) => {
+                    break;
+                }
+            }
         }
 
         // We are at the end of the file.
@@ -68,28 +71,28 @@ impl Scanner<'_>  {
             "".to_string(),
             token::token::Literal::NoLexeme,
             self.line,
-            self.current,
-            0
         ));
     }
 
-    fn scan_token(&mut self) {
+    fn scan_token(&mut self) -> Result<(), ()> {
         //! The scan_token method that scans a token.
         //! 
         //! This is the main method and purpose of the scanner.
         //! 
         //! This method is called by `scan_tokens` and is responsible for
         //! scanning a single token.
+        //! 
+        //! The side effects of this are usually to add a token to the tokens
+        //! and to advance the scanner.
 
         // We are at the beginning of the next lexeme.
 
         match self.current_char {
             None => {
                 // We are at the end of the file.
-                return;
+                Err(())
             },
             Some(c) => {
-
 
                 // handle comments and division
                 if c == '/' {
@@ -105,7 +108,7 @@ impl Scanner<'_>  {
                         // reason to end a file in a division sign.
                         None => {
                             add_token(self, TokenType::Slash);
-                            return;
+                            return Err(());
                         },
                         Some(current_char) => {
                             // if the next character is a slash, then we have a comment
@@ -130,11 +133,11 @@ impl Scanner<'_>  {
                                     
                                     match self.current_char {
                                         None => {
-                                            return;
+                                            return Err(());
                                         },
                                         Some(current_char) => {
                                             if current_char == '\n' {
-                                                return;
+                                                return Ok(());
                                             }
                                         }
                                     }
@@ -143,7 +146,7 @@ impl Scanner<'_>  {
                             } else {
                                 add_token(self, TokenType::Slash);
                                 // don't increment current because we already did that (consumed the single slash)
-                                return;
+                                return Ok(());
                             }
                         }
                     }
@@ -205,6 +208,7 @@ impl Scanner<'_>  {
                 }
 
                 self.advance();
+                Ok(())
 
             }
         }
