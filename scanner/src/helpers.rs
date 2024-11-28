@@ -34,16 +34,23 @@ pub fn add_token(
 }
 
 
-pub fn match_next(scanner: &mut crate::scanner_struct::Scanner, expected: char) -> bool {
-    //! Checks if the next character matches the expected character and returns true if it does.
-    //! If not, it returns false
+pub fn match_next(scanner: &mut crate::scanner_struct::Scanner, expected: char) -> Result<(),()> {
+    //! Checks if the next character matches the expected character.
+    //! - If it does, advances the scanner and returns `Ok(())`.
+    //! - If it does not, returns `Err(())`.
 
     match scanner.current_char {
         Some(c) => {
-            c == expected
+            if c == expected {
+                scanner.advance();
+                return Ok(());
+            }
+            else {
+                return Err(());
+            }
         },
         None => {
-            false
+            return Err(());
         }
     
     }

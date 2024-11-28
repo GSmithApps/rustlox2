@@ -175,39 +175,52 @@ impl Scanner<'_>  {
                     // then advance if it matches. This is because we want to consume
                     // the next character if it matches the second part of the token.
                     '!' => {
-                        let token_type = if match_next(self, '=') {
-                            self.advance();
-                            TokenType::BangEqual
-                        } else {
-                            TokenType::Bang
+                        let token_type = match match_next(self, '=') {
+                            Ok(()) => {
+                                TokenType::BangEqual
+                            },
+                            Err(()) => {
+                                TokenType::Bang
+                            }
                         };
                         add_token(self, token_type);
                     },
                     '=' => {
-                        let token_type = if match_next(self, '=') {
-                            self.advance();
-                            TokenType::EqualEqual
-                        } else {
-                            TokenType::Equal
+
+                        let token_type = match match_next(self, '=') {
+                            Ok(()) => {
+                                TokenType::EqualEqual
+                            },
+                            Err(()) => {
+                                TokenType::Equal
+                            }
                         };
                         add_token(self, token_type);
                     },
                     '<' => {
-                        let token_type = if match_next(self, '=') {
-                            self.advance();
-                            TokenType::LessEqual
-                        } else {
-                            TokenType::Less
+
+                        let token_type = match match_next(self, '=') {
+                            Ok(()) => {
+                                TokenType::LessEqual
+                            },
+                            Err(()) => {
+                                TokenType::Less
+                            }
                         };
+
                         add_token(self, token_type);
                     },
                     '>' => {
-                        let token_type = if match_next(self, '=') {
-                            self.advance();
-                            TokenType::GreaterEqual
-                        } else {
-                            TokenType::Greater
+
+                        let token_type = match match_next(self, '=') {
+                            Ok(()) => {
+                                TokenType::GreaterEqual
+                            },
+                            Err(()) => {
+                                TokenType::Greater
+                            }
                         };
+
                         add_token(self, token_type);
                     },
                     _ => {
