@@ -58,11 +58,21 @@ impl Scanner<'_>  {
             // We are at the beginning of the next lexeme.
             self.start = self.current;
             match self.scan_token() {
-                Ok(()) => {},
+                Ok(result) => {
+                    match result {
+                        Some(token_type) => {
+                            add_token(self, token_type);
+                        },
+                        None => {
+                            // do nothing
+                        }
+                    }
+                },
                 Err(()) => {
                     break;
                 }
             }
+            self.advance();
         }
 
         // We are at the end of the file.
@@ -74,7 +84,7 @@ impl Scanner<'_>  {
         ));
     }
 
-    fn scan_token(&mut self) -> Result<(), ()> {
+    fn scan_token(&mut self) -> Result<Option<TokenType>, ()> {
         //! The scan_token method that scans a token.
         //! 
         //! This is the main method and purpose of the scanner.
@@ -107,8 +117,7 @@ impl Scanner<'_>  {
                         // in reality, this probably won't happen because there's no
                         // reason to end a file in a division sign.
                         None => {
-                            add_token(self, TokenType::Slash);
-                            return Err(());
+                            return Ok(Some(TokenType::Slash));
                         },
                         Some(current_char) => {
                             // if the next character is a slash, then we have a comment
@@ -137,16 +146,14 @@ impl Scanner<'_>  {
                                         },
                                         Some(current_char) => {
                                             if current_char == '\n' {
-                                                return Ok(());
+                                                return Ok(None);
                                             }
                                         }
                                     }
                                     self.advance();
                                 }
                             } else {
-                                add_token(self, TokenType::Slash);
-                                // don't increment current because we already did that (consumed the single slash)
-                                return Ok(());
+                                return Ok(Some(TokenType::Slash));
                             }
                         }
                     }
@@ -160,16 +167,16 @@ impl Scanner<'_>  {
 
 
                 match c {
-                    '(' => add_token(self, TokenType::LeftParen),
-                    ')' => add_token(self, TokenType::RightParen),
-                    '{' => add_token(self, TokenType::LeftBrace),
-                    '}' => add_token(self, TokenType::RightBrace),
-                    ',' => add_token(self, TokenType::Comma),
-                    '.' => add_token(self, TokenType::Dot),
-                    '-' => add_token(self, TokenType::Minus),
-                    '+' => add_token(self, TokenType::Plus),
-                    ';' => add_token(self, TokenType::Semicolon),
-                    '*' => add_token(self, TokenType::Star),
+                    '(' => return Ok(Some(TokenType::LeftParen)),
+                    ')' => return Ok(Some(TokenType::RightParen)),
+                    '{' => return Ok(Some(TokenType::LeftBrace)),
+                    '}' => return Ok(Some(TokenType::RightBrace)),
+                    ',' => return Ok(Some(TokenType::Comma)),
+                    '.' => return Ok(Some(TokenType::Dot)),
+                    '-' => return Ok(Some(TokenType::Minus)),
+                    '+' => return Ok(Some(TokenType::Plus)),
+                    ';' => return Ok(Some(TokenType::Semicolon)),
+                    '*' => return Ok(Some(TokenType::Star)),
 
                     // these are two part tokens. The pattern is to do match_next
                     // then advance if it matches. This is because we want to consume
@@ -183,7 +190,7 @@ impl Scanner<'_>  {
                                 TokenType::Bang
                             }
                         };
-                        add_token(self, token_type);
+                        return Ok(Some(token_type));
                     },
                     '=' => {
 
@@ -195,7 +202,7 @@ impl Scanner<'_>  {
                                 TokenType::Equal
                             }
                         };
-                        add_token(self, token_type);
+                        return Ok(Some(token_type));
                     },
                     '<' => {
 
@@ -208,7 +215,7 @@ impl Scanner<'_>  {
                             }
                         };
 
-                        add_token(self, token_type);
+                        return Ok(Some(token_type));
                     },
                     '>' => {
 
@@ -221,15 +228,14 @@ impl Scanner<'_>  {
                             }
                         };
 
-                        add_token(self, token_type);
+                        return Ok(Some(token_type));
                     },
                     _ => {
                         // crate::run_time_error::run_time_error(self.line, "Unexpected character.".to_string());
                     }
                 }
 
-                self.advance();
-                Ok(())
+                Ok(None)
 
             }
         }
