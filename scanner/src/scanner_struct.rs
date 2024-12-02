@@ -192,6 +192,10 @@ impl Scanner<'_> {
                         self.advance(1);
                         ScanTokenResult::TokenFound(TokenType::Minus)
                     }
+                    '⁻' => {
+                        self.advance(1);
+                        ScanTokenResult::TokenFound(TokenType::Negative)
+                    }
                     '+' => {
                         self.advance(1);
                         ScanTokenResult::TokenFound(TokenType::Plus)
@@ -204,23 +208,34 @@ impl Scanner<'_> {
                         self.advance(1);
                         ScanTokenResult::TokenFound(TokenType::Star)
                     }
+                    '≤' => {
+                        self.advance(1);
+                        ScanTokenResult::TokenFound(TokenType::LessEqual)
+                    }
+                    '<' => {
+                        self.advance(1);
+                        ScanTokenResult::TokenFound(TokenType::Less)
+                    }
+                    '≥' => {
+                        self.advance(1);
+                        ScanTokenResult::TokenFound(TokenType::GreaterEqual)
+                    }
+                    '>' => {
+                        self.advance(1);
+                        ScanTokenResult::TokenFound(TokenType::Greater)
+                    }
+                    '≠' => {
+                        self.advance(1);
+                        ScanTokenResult::TokenFound(TokenType::NotEqual)
+                    }
+                    '¬' => {
+                        self.advance(1);
+                        ScanTokenResult::TokenFound(TokenType::Not)
+                    }
 
                     // these are two part tokens. The pattern is to do match_next
                     // then advance if it matches. This is because we want to consume
                     // the next character if it matches the second part of the token.
-                    '!' => {
-                        let token_type = match match_next(self, '=') {
-                            Ok(()) => {
-                                self.advance(2);
-                                TokenType::BangEqual
-                            }
-                            Err(()) => {
-                                self.advance(1);
-                                TokenType::Bang
-                            }
-                        };
-                        ScanTokenResult::TokenFound(token_type)
-                    }
                     '=' => {
                         let token_type = match match_next(self, '=') {
                             Ok(()) => {
@@ -232,34 +247,6 @@ impl Scanner<'_> {
                                 TokenType::Equal
                             }
                         };
-                        ScanTokenResult::TokenFound(token_type)
-                    }
-                    '<' => {
-                        let token_type = match match_next(self, '=') {
-                            Ok(()) => {
-                                self.advance(2);
-                                TokenType::LessEqual
-                            }
-                            Err(()) => {
-                                self.advance(1);
-                                TokenType::Less
-                            }
-                        };
-
-                        ScanTokenResult::TokenFound(token_type)
-                    }
-                    '>' => {
-                        let token_type = match match_next(self, '=') {
-                            Ok(()) => {
-                                self.advance(2);
-                                TokenType::GreaterEqual
-                            }
-                            Err(()) => {
-                                self.advance(1);
-                                TokenType::Greater
-                            }
-                        };
-
                         ScanTokenResult::TokenFound(token_type)
                     }
                     _ => {
