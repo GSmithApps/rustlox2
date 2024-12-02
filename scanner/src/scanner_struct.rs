@@ -1,10 +1,18 @@
 //! Contains the `Scanner` struct.
 
-use crate::helpers::add_token;
 use crate::helpers::match_next;
-use token::token::Token;
+use token::token::{Token, Literal};
 use token::token_type::TokenType;
 
+
+
+/// The add_token method that adds a token to the tokens.
+///
+/// This method is called by `scan_token` and is responsible for
+/// adding a token to the tokens.
+pub fn add_token(tokens: &mut Vec<Token>, token_type: TokenType) {
+
+}
 
 enum ScanTokenResult {
     /// The token was found.
@@ -27,9 +35,6 @@ enum ScanTokenResult {
 pub struct Scanner<'a> {
     /// The raw source code.
     pub source: &'a str,
-
-    /// The tokens that have been scanned.
-    pub tokens: Vec<Token>,
 
     /// Works with `current` as offsets that index into
     /// the `source` string.  This field (`start`) points
@@ -57,7 +62,6 @@ impl Scanner<'_> {
         //! Create a new `Scanner`.
         Scanner {
             source,
-            tokens: Vec::new(),
             start: 0,
             current: 0,
             current_char: source.chars().nth(0),
@@ -65,7 +69,7 @@ impl Scanner<'_> {
         }
     }
 
-    pub fn scan_tokens(&mut self) {
+    pub fn scan_tokens(&mut self, tokens: &mut Vec<Token>) {
         //! The scan_tokens method that scans the tokens.
         //!
         //! This is the main method and purpose of the scanner.
@@ -74,8 +78,10 @@ impl Scanner<'_> {
             // We are at the beginning of the next lexeme.
             self.start = self.current;
             match self.scan_token() {
-                ScanTokenResult::TokenFound(token) => {
-                    add_token(self, token);
+                ScanTokenResult::TokenFound(token_type) => {
+
+                    let lexeme = self.source[self.start..self.current].to_string();
+                    tokens.push(Token::new(token_type, lexeme, Literal::NoLiteral, self.line));
                 }
                 ScanTokenResult::EndOfFile => {
                     break;
@@ -87,10 +93,10 @@ impl Scanner<'_> {
         }
 
         // We are at the end of the file.
-        self.tokens.push(Token::new(
+        tokens.push(Token::new(
             TokenType::EOF,
             "".to_string(),
-            token::token::Literal::NoLexeme,
+            token::token::Literal::NoLiteral,
             self.line,
         ));
     }

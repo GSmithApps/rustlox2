@@ -1,6 +1,8 @@
 //! Contains the run function
 
 use scanner::scanner_struct::Scanner;
+use token::token::Token;
+use token::token_type::TokenType;
 
 /// Run the code inside the interpreter.
 /// 
@@ -9,7 +11,8 @@ use scanner::scanner_struct::Scanner;
 /// This will be used by `run_file` and `run_prompt`.
 pub fn run(code: &str) {
     let mut myscanner = Scanner::new(code);
-    myscanner.scan_tokens();
+    let mut tokens: Vec<Token> = Vec::new();
+    myscanner.scan_tokens(&mut tokens);
     println!("Running code:\n{}", code);
     println!("Tokens: {:?}", myscanner.tokens);
 }

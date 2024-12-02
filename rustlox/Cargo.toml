@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 utilities = { path = "../utilities" }
 scanner = { path = "../scanner" }
+token = { path = "../token" }
