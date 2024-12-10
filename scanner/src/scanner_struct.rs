@@ -1,24 +1,21 @@
 //! Contains the `Scanner` struct.
 
-use crate::helpers::match_next;
 use token::token::{Token, Literal};
 use token::token_type::TokenType;
 
 
-
-/// The add_token method that adds a token to the tokens.
-///
-/// This method is called by `scan_token` and is responsible for
-/// adding a token to the tokens.
-pub fn add_token(tokens: &mut Vec<Token>, token_type: TokenType) {
-
-}
 
 enum ScanTokenResult {
     /// The token was found.
     /// 
     /// This is the normal case.
     TokenFound(TokenType),
+
+    /// A token was found and added to the `tokens` vector.
+    /// 
+    /// This is used when we want to customize the way the token from the scan pass
+    /// is added to the token vector.
+    TokenFoundAndAdded,
 
     /// No token was found from this pass of ScanToken.
     /// 
@@ -35,6 +32,8 @@ enum ScanTokenResult {
 pub struct Scanner<'a> {
     /// The raw source code.
     pub source: &'a str,
+
+    pub tokens: Vec<Token>,
 
     /// Works with `current` as offsets that index into
     /// the `source` string.  This field (`start`) points
@@ -57,11 +56,13 @@ pub struct Scanner<'a> {
     pub line: usize,
 }
 
+
 impl Scanner<'_> {
     pub fn new(source: &str) -> Scanner {
         //! Create a new `Scanner`.
         Scanner {
             source,
+            tokens: Vec::new(),
             start: 0,
             current: 0,
             current_char: source.chars().nth(0),
@@ -69,7 +70,7 @@ impl Scanner<'_> {
         }
     }
 
-    pub fn scan_tokens(&mut self, tokens: &mut Vec<Token>) {
+    pub fn scan_tokens(&mut self) {
         //! The scan_tokens method that scans the tokens.
         //!
         //! This is the main method and purpose of the scanner.
@@ -81,7 +82,7 @@ impl Scanner<'_> {
                 ScanTokenResult::TokenFound(token_type) => {
 
                     let lexeme = self.source[self.start..self.current].to_string();
-                    tokens.push(Token::new(token_type, lexeme, Literal::NoLiteral, self.line));
+                    self.tokens.push(Token::new(token_type, lexeme, Literal::NoLiteral, self.line));
                 }
                 ScanTokenResult::EndOfFile => {
                     break;
@@ -89,11 +90,14 @@ impl Scanner<'_> {
                 ScanTokenResult::NoTokenFromScanPass => {
                     // do nothing
                 }
+                ScanTokenResult::TokenFoundAndAdded => {
+                    // do nothing
+                }
             }
         }
 
         // We are at the end of the file.
-        tokens.push(Token::new(
+        self.tokens.push(Token::new(
             TokenType::EOF,
             "".to_string(),
             token::token::Literal::NoLiteral,
@@ -159,7 +163,33 @@ impl Scanner<'_> {
                         }
                     }
 
-                    // if c is a double quote then we have a string
+                    // if c is an open quote then we have a string
+                    '«' => {
+                        self.advance(1);
+                        loop {
+                            match self.current_char {
+                                None => {
+                                    // crate::run_time_error::run_time_error(self.line, "Unterminated string.".to_string());
+                                    return ScanTokenResult::EndOfFile;
+                                }
+                                Some(current_char) if current_char == '»' => {
+                                    self.advance(1);
+                                    break;
+                                }
+                                Some(_) => {
+                                    self.advance(1);
+                                }
+                            }
+                        }
+                        let literal = self.source[self.start..self.current].to_string();
+                        self.tokens.push(Token::new(
+                            TokenType::String,
+                            format!("«{}»", literal),
+                            Literal::String(literal),
+                            self.line,
+                        ));
+                        ScanTokenResult::TokenFoundAndAdded
+                    }
 
                     // if c is a digit then we have a number
 
@@ -232,22 +262,13 @@ impl Scanner<'_> {
                         self.advance(1);
                         ScanTokenResult::TokenFound(TokenType::Not)
                     }
-
-                    // these are two part tokens. The pattern is to do match_next
-                    // then advance if it matches. This is because we want to consume
-                    // the next character if it matches the second part of the token.
-                    '=' => {
-                        let token_type = match match_next(self, '=') {
-                            Ok(()) => {
-                                self.advance(2);
-                                TokenType::EqualEqual
-                            }
-                            Err(()) => {
-                                self.advance(1);
-                                TokenType::Equal
-                            }
-                        };
-                        ScanTokenResult::TokenFound(token_type)
+                    '≟' => {
+                        self.advance(1);
+                        ScanTokenResult::TokenFound(TokenType::EqualityTest)
+                    }
+                    '←' => {
+                        self.advance(1);
+                        ScanTokenResult::TokenFound(TokenType::Assignment)
                     }
                     _ => {
                         // crate::run_time_error::run_time_error(self.line, "Unexpected character.".to_string());
@@ -261,8 +282,9 @@ impl Scanner<'_> {
         }
     }
 
+    /// increment the current index and current character by `increment_by`.
     pub fn advance(&mut self, increment_by: usize) {
-        //! some stuff
+
         self.current += increment_by;
         self.current_char = self.source.chars().nth(self.current);
     }
